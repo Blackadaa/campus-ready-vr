@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="A virtual orientation rehearsal for finding student support.">
+<title>Campus Ready VR</title>
+<style>
+:root{color-scheme:dark;--bg:#10172a;--panel:#19243a;--panel2:#202e49;--line:#3b4c68;--text:#f5f8ff;--muted:#c2cee4;--mint:#a4f0db;--navy:#11372c;--cobalt:#91b9ff;--warm:#ffda9a;font:16px/1.53 system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}a{color:inherit}button,select{font:inherit}button,a,select{touch-action:manipulation}button,.button,select{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:9px 13px;background:var(--panel2);color:var(--text);font-weight:650}button,.button{display:inline-flex;align-items:center;gap:7px;cursor:pointer;text-decoration:none}button:hover,.button:hover{filter:brightness(1.12)}button.primary,.button.primary{background:var(--mint);border-color:var(--mint);color:var(--navy)}button:disabled{opacity:.55;cursor:not-allowed}button[aria-pressed=true]{border-color:var(--mint);background:#245448}button:focus-visible,a:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid var(--warm);outline-offset:3px}header,main,footer{width:min(1130px,calc(100% - 32px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}header a{text-decoration:none;font-weight:800;letter-spacing:-.03em}header a span{display:inline-grid;place-items:center;vertical-align:middle;width:35px;height:35px;margin-right:9px;border-radius:8px;background:var(--mint);color:var(--navy);font-size:13px}header small{color:var(--muted)}main{padding:22px 0 30px;min-height:82vh}footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding:12px 0 25px}h1,h2,h3,p{margin:0 0 10px}h1{font-size:clamp(2rem,4vw,3.45rem);line-height:1.06;letter-spacing:-.05em}h2{font-size:1.2rem;line-height:1.25}p{max-width:78ch}p:last-child{margin-bottom:0}.eyebrow{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);font-weight:750}.muted{color:var(--muted)}.nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-bottom:17px}.nav a{border:1px solid var(--line);min-height:44px;border-radius:8px;padding:7px 8px;text-decoration:none;display:flex;align-items:center;gap:7px;font-size:.84rem;font-weight:650;background:#161f34}.nav a[aria-current=page]{background:#203956;border-color:var(--cobalt);color:#e6f0ff}.nav a span{font-size:.67rem;opacity:.8}.banner{display:flex;justify-content:space-between;gap:14px;align-items:end;margin:0 0 15px}.banner .tag{margin-bottom:6px}.tag{display:inline-block;border:1px solid var(--line);color:var(--cobalt);padding:4px 9px;border-radius:30px;font-size:.76rem;white-space:nowrap}.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:13px;align-items:start}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}.stage{height:min(44vw,350px);min-height:225px;position:relative;overflow:hidden;border-radius:10px;background:linear-gradient(160deg,#2e5376,#051122);border:1px solid var(--line)}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.stage .tag{position:absolute;top:10px;left:10px;background:#121e33ee;color:#e3efff;pointer-events:none}.hint{padding:8px 9px;border-radius:8px;background:#263952;color:#e0ebff}.fallback{display:grid;place-items:center;height:100%;padding:12px;text-align:center}.row{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:10px}.stack{display:grid;gap:7px}.stack button{justify-content:flex-start;text-align:left}.status{min-height:24px;margin:10px 0;color:var(--mint);font-weight:650}.status.warning{color:var(--warm)}.legend{font-size:.82rem}.route{display:grid;gap:7px;padding:0;list-style:none}.route li{border-left:3px solid var(--line);padding:4px 0 4px 9px}.route li[aria-current=step]{border-color:var(--mint);font-weight:750}.check{display:flex;justify-content:space-between;align-items:start;gap:10px;border-bottom:1px solid var(--line);padding:9px 0}.check:last-child{border-bottom:0}.check strong{color:var(--mint)}.skip{position:absolute;top:-100px;left:12px}.skip:focus{top:4px;z-index:5;background:var(--bg);padding:10px}.padded{margin-top:9px}.pref{display:grid;gap:6px;padding-bottom:9px}.pref label{color:var(--muted)} .small{font-size:.86rem}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.nav{grid-template-columns:repeat(3,minmax(0,1fr))}.banner{display:block}.banner .tag{margin-top:6px}header small{font-size:.72rem}.stage{height:265px}}@media(max-width:390px){.nav a{font-size:.74rem}.nav a span{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header><a href="#home"><span>CR</span>Campus Ready VR</a><small>Virtual student orientation</small></header>
+<main><nav class="nav" id="nav" aria-label="Orientation screens"></nav><div id="content" tabindex="-1"></div></main>
+<footer>Illustrative campus and service desk. Check your own institution’s locations and procedures before visiting.</footer>
+<script>
+'use strict';
+const screens=[['home','Start'],['setup','Setup'],['route','Route'],['landmark','Landmark'],['desk','Service desk'],['debrief','Debrief']];
+const locations=['Entrance','Library junction','Student Support'];
+const defaultState=()=>({height:'seated',route:0,misses:0,landmark:false,desk:false,landmarkStatus:'',deskStatus:''});
+function load(){try{const v=JSON.parse(localStorage.getItem('campus-ready-v1'));return v&&locations[v.route]!==undefined?{...defaultState(),...v}:defaultState()}catch{return defaultState()}}
+let state=load(), headset, session=null, renderer=null, viewYaw=0;
+const nav=document.querySelector('#nav'),content=document.querySelector('#content');
+const store=()=>{try{localStorage.setItem('campus-ready-v1',JSON.stringify(state))}catch{}};
+const go=id=>{location.hash=id};
+const current=()=>screens.some(([id])=>'#'+id===location.hash)?location.hash.slice(1):'home';
+const link=(id,label,primary=false)=>`<a class="button ${primary?'primary':''}" href="#${id}">${label}</a>`;
+const button=(id,label,primary=false)=>`<button id="${id}" type="button" class="${primary?'primary':''}">${label}</button>`;
+const row=items=>`<div class="row">${items.join('')}</div>`;
+const stage=(label)=>`<div class="stage"><canvas id="scene" width="1000" height="570" tabindex="0" aria-label="Illustrative 3D campus. Arrow keys look left or right."></canvas><span class="tag">${label}</span></div>`;
+const status=(text='',warning=false)=>`<p class="status ${warning?'warning':''}" id="feedback" role="status">${text}</p>`;
+function bind(id,fn){document.querySelector('#'+id)?.addEventListener('click',fn)}
+function layout(id,title,intro,left,right,tag='Browser preview'){
+ nav.innerHTML=screens.map(([key,label],i)=>`<a href="#${key}" ${key===id?'aria-current="page"':''}><span>0${i}</span>${label}</a>`).join('');
+ content.innerHTML=`<div class="banner"><div><p class="eyebrow">${id==='home'?'Orientation rehearsal':'Step '+screens.findIndex(([key])=>key===id)+' of 5'}</p><h1>${title}</h1><p class="muted">${intro}</p></div><span class="tag">${tag}</span></div><div class="grid"><section class="panel">${left}</section><aside class="panel">${right}</aside></div>`;
+}
+function home(){
+ layout('home','Find Student Support','Practise a short campus visit before you go in person.',
+ stage('Campus entrance')+row([link('setup','Start rehearsal',true),link('route','Open route')]),
+ '<h2>Your visit</h2><p>Start at the entrance, recognise the library junction and rehearse approaching the service desk.</p><p class="hint">Use the browser preview on a phone or computer. Compatible headsets may offer immersive VR in the route.</p><p class="small muted">The layout and desk tasks are fictional.</p>');
+}
+function setup(){
+ layout('setup','Choose a comfortable view','Pick a viewing height and preview the controls before starting.',
+ stage('Set your view')+row([button('left','Look left'),button('right','Look right'),button('center','Re-centre')]),
+ `<h2>Viewing preference</h2><div class="pref"><label for="height">Desktop camera height</label><select id="height"><option value="seated" ${state.height==='seated'?'selected':''}>Seated</option><option value="standing" ${state.height==='standing'?'selected':''}>Standing</option></select></div><p class="small muted">Use fixed stops for movement. In a headset, your tracked position controls height.</p>${status(headset===true?'Immersive VR is available on this browser.':headset===false?'Desktop mode is available. No compatible immersive session detected.':'Checking headset support…')}`+row([link('route','Continue to route',true)]));
+ document.querySelector('#height').addEventListener('change',e=>{state.height=e.target.value;store();paint();document.querySelector('#feedback').textContent=state.height==='seated'?'Seated preview selected.':'Standing preview selected.'});
+}
+function route(){
+ const routeList='<ol class="route">'+locations.map((name,i)=>`<li ${i===state.route?'aria-current="step"':''}>${name}</li>`).join('')+'</ol>';
+ const actions=row([button('previous','Previous stop'),button('next','Next stop',true),button('left','Look left'),button('right','Look right')]);
+ const vr=headset===true?row([button('immerse','Enter immersive VR')])+'<p class="small muted padded">Select on the controller to move to the next stop. Exit using the headset menu or return to this tab.</p>':'<p class="small muted">Desktop preview is available. A compatible headset and secure origin are required for immersive VR.</p>';
+ layout('route','Rehearse the route','Move between three named viewing points without continuous camera movement.',
+ stage(locations[state.route])+actions,
+ `<h2>Route checkpoints</h2>${routeList}${vr}${status()}`+row([link('landmark','Try landmark challenge',true)]));
+ const prev=document.querySelector('#previous'),next=document.querySelector('#next');prev.disabled=state.route===0;next.disabled=state.route===2;
+ function step(delta){state.route=Math.max(0,Math.min(2,state.route+delta));store();render();document.querySelector(state.route===2?'a[href="#landmark"].button':'#next')?.focus();document.querySelector('#feedback').textContent='Now at '+locations[state.route]+'.'}
+ bind('previous',()=>step(-1));bind('next',()=>step(1));bind('immerse',beginVR);
+}
+function landmark(){
+ layout('landmark','Read the junction','Choose the visible landmark that leads towards Student Support.',
+ stage('Library junction')+'<p class="hint padded">The library is marked in blue. The teal Student Support sign points to the service centre.</p>',
+ `<h2>Which cue should you follow?</h2><div class="stack">${button('library','Blue library sign')}${button('support','Teal Student Support sign')}${button('courtyard','Open courtyard')}</div>${status(state.landmarkStatus,!state.landmark&&Boolean(state.landmarkStatus))}`+row([link('desk','Continue to service desk',true)]));
+ for(const [id,correct] of [['library',false],['support',true],['courtyard',false]])bind(id,()=>{
+  if(correct){state.landmark=true;state.landmarkStatus='Correct. The teal sign names Student Support.'}
+  else{state.misses++;state.landmarkStatus=id==='library'?'That sign identifies the library. Look for the sign that names the service.':'The courtyard is a location, but its sign does not identify the service.'}
+  store();const f=document.querySelector('#feedback');f.textContent=state.landmarkStatus;f.classList.toggle('warning',!correct);
+ });
+}
+function desk(){
+ layout('desk','Practise at the desk','Choose what to do on an illustrative first visit.',
+ stage('Student Support desk')+'<p class="hint padded">Scenario: You want help finding the right contact for a timetable question.</p>',
+ `<h2>What will you do first?</h2><div class="stack">${button('wait','Wait without speaking')}${button('explain','Explain what help I need')}${button('leave','Leave and guess where to go')}</div>${status(state.deskStatus,!state.desk&&Boolean(state.deskStatus))}`+row([link('debrief','Open debrief',true)]));
+ for(const [id,msg,ok] of [['wait','Waiting without a question gives the desk no cue. Try explaining what you need.',false],['explain','Good choice. A brief explanation helps staff direct you to the right contact.',true],['leave','Guessing may send you to the wrong place. Ask at the desk first.',false]])bind(id,()=>{state.desk ||=ok;state.deskStatus=msg;store();const f=document.querySelector('#feedback');f.textContent=msg;f.classList.toggle('warning',!ok)});
+}
+function debrief(){
+ const result=flag=>flag?'<strong>Complete</strong>':'<span class="muted">Not yet complete</span>';
+ layout('debrief','Review your rehearsal','Check what you completed and replay a step before leaving.',
+ '<h2>Visit summary</h2><div class="check"><span>Reached Student Support</span>'+result(state.route===2)+'</div><div class="check"><span>Identified the direction cue</span>'+result(state.landmark)+'</div><div class="check"><span>Chose an appropriate desk action</span>'+result(state.desk)+'</div><p class="small muted padded">Incorrect landmark choices: '+state.misses+'</p>',
+ '<h2>Revisit a step</h2>'+row([link('route','Replay route'),link('landmark','Retry landmark'),link('desk','Retry desk')])+row([button('reset','Clear rehearsal progress')])+status()+'<p class="small muted">Progress stays in this browser. Check the actual Student Support location and process before visiting.</p>');
+ bind('reset',()=>{state=defaultState();store();debrief();document.querySelector('#reset').focus();document.querySelector('#feedback').textContent='Progress has been cleared.'});
+}
+
+const points=[[0,1.2,5],[-1.8,1.2,-1.3],[3.95,1.2,-11.1]];
+const routesByView={home:0,setup:0,landmark:1,desk:2};
+function atStop(id){return id==='route'?state.route:routesByView[id]??0}
+const world=[];
+let labelStart=0;
+function quad(a,b,c,d,color){for(const p of [a,b,c,a,c,d])world.push(...p,...color)}
+function cube(x,y,z,w,h,l,color){
+ const a=[x,y,z],b=[x+w,y,z],c=[x+w,y+h,z],d=[x,y+h,z],e=[x,y,z+l],f=[x+w,y,z+l],g=[x+w,y+h,z+l],i=[x,y+h,z+l];
+ const shade=n=>color.map(v=>v*n);
+ quad(a,b,c,d,color);quad(e,i,g,f,shade(.77));quad(a,e,f,b,shade(.74));quad(d,c,g,i,shade(1.16));
+ quad(a,d,i,e,shade(.83));quad(b,f,g,c,shade(.69));
+}
+function makeWorld(){
+ for(let z=-20;z<=10;z+=2)for(let x=-12;x<12;x+=2)cube(x,-.13,z,1.98,.10,1.98,(x+z)%4===0?[.30,.37,.46]:[.25,.32,.43]);
+ cube(-12,0,-19,3.5,5,22,[.26,.36,.56]);cube(8,0,-19,4,6,22,[.26,.39,.53]);
+ cube(-8,0,-10,4,3.8,4,[.22,.38,.65]);cube(2,0,-19,5,4.2,3,[.13,.52,.46]);
+ cube(2,0,-14.5,3,.9,.65,[.27,.55,.49]);cube(2,1.9,-16.04,4,.78,.08,[.18,.78,.61]);
+ cube(-7.2,2.1,-5.94,2.7,.79,.08,[.26,.61,.95]);
+ for(let z=-17;z<6;z+=6)for(const x of [-8,7]){cube(x,0,z,.16,1.7,.16,[.41,.39,.35]);cube(x-.47,1.3,z-.45,1.1,1.1,1.1,[.16,.51,.42])}
+ for(let z=3;z>-15;z-=2)cube(-.18,-.01,z,.36,.02,.65,[.63,.78,.93]);
+ const letter={
+ A:['010','101','111','101','101'],B:['110','101','110','101','110'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],I:['111','010','010','010','111'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],O:['111','101','101','101','111'],P:['110','101','110','100','100'],R:['110','101','110','101','101'],S:['111','100','111','001','111'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],Y:['101','101','010','010','010']
+ };
+ function signage(txt,x,y,z,pix){
+  Array.from(txt).forEach((ch,n)=>letter[ch]?.forEach((bits,row)=>Array.from(bits).forEach((bit,col)=>{
+   if(bit==='1')cube(x+(n*4+col)*pix,y-row*pix,z,pix*.90,pix*.90,.025,[.91,.98,1]);
+  })));
+ }
+ labelStart=world.length;
+ signage('LIBRARY',-6.96,2.65,-5.83,.078);signage('SUPPORT',2.45,2.43,-15.93,.105);
+}
+makeWorld();
+function perspective(ratio){let f=1/Math.tan(Math.PI/6);return new Float32Array([f/ratio,0,0,0,0,f,0,0,0,0,-1.003, -1,0,0,-.1002,0])}
+function camera(x,y,z,a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,s,0,0,1,0,0,-s,0,c,0,-c*x+s*z,-y,-s*x-c*z,1])}
+function shift(x,y,z){return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1])}
+function mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o}
+function init(canvas){
+ let gl=canvas.getContext('webgl',{antialias:true});if(!gl)return null;
+ function shader(kind,code){const s=gl.createShader(kind);gl.shaderSource(s,code);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+ const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,'attribute vec3 pos;attribute vec3 rgb;uniform mat4 mvp;varying vec3 shade;void main(){gl_Position=mvp*vec4(pos,1.);shade=rgb;}'));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 shade;void main(){gl_FragColor=vec4(shade,1.);}'));
+ gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+ const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(world),gl.STATIC_DRAW);
+ for(const [name,offset] of [['pos',0],['rgb',12]]){const a=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,24,offset)}
+ const m=gl.getUniformLocation(program,'mvp');
+ gl.enable(gl.DEPTH_TEST);gl.clearColor(.24,.39,.59,1);
+ function draw(matrix){gl.uniformMatrix4fv(m,false,matrix);gl.drawArrays(gl.TRIANGLES,0,world.length/6)}
+ return {gl,canvas,draw,buffer:buf,program};
+}
+
+function softwarePreview(canvas){
+ const ctx=canvas.getContext('2d');
+ if(!ctx)return null;
+ function draw(x,y,z,angle){
+  const width=canvas.width,height=canvas.height,f=height*.866,c=Math.cos(angle),s=Math.sin(angle);
+  const view=ctx.createLinearGradient(0,0,0,height);
+  view.addColorStop(0,'#41648f');view.addColorStop(1,'#9ebacb');
+  ctx.fillStyle=view;ctx.fillRect(0,0,width,height);
+  const near=.12,faces=[];
+  for(let i=0;i<labelStart;i+=18){
+   let points=[];
+   for(let j=0;j<18;j+=6){
+    const xx=world[i+j]-x,zz=world[i+j+2]-z;
+    points.push([c*xx-s*zz,world[i+j+1]-y,-s*xx-c*zz]);
+   }
+   const clipped=[];
+   points.forEach((a,j)=>{
+    const b=points[(j+1)%points.length],inside=a[2]>=near,after=b[2]>=near;
+    if(inside)clipped.push(a);
+    if(inside!==after){const t=(near-a[2])/(b[2]-a[2]);clipped.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,near])}
+   });
+   if(clipped.length<3)continue;
+   const proj=clipped.map(([a,b,d])=>[width/2+a*f/d,height/2-b*f/d]);
+   if(proj.every(p=>p[0]<0)||proj.every(p=>p[0]>width)||proj.every(p=>p[1]<0)||proj.every(p=>p[1]>height))continue;
+   faces.push([clipped.reduce((n,p)=>n+p[2],0)/clipped.length,proj,'rgb('+world.slice(i+3,i+6).map(n=>Math.min(255,Math.round(n*255))).join(',')+')']);
+  }
+  faces.sort((a,b)=>b[0]-a[0]);
+  for(const [,points,color] of faces){ctx.beginPath();points.forEach(([x,y],j)=>j?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=color;ctx.strokeStyle=color;ctx.lineWidth=.75;ctx.fill();ctx.stroke()}
+  for(const [text,lx,ly,lz] of [['LIBRARY',-5.86,2.48,-5.90],['STUDENT SUPPORT',4.10,2.29,-15.91]]){
+   const xx=lx-x,zz=lz-z,depth=-s*xx-c*zz;
+   if(depth<near||z<lz)continue;
+   const px=width/2+(c*xx-s*zz)*f/depth,py=height/2-(ly-y)*f/depth;
+   ctx.fillStyle='#f3fbff';ctx.textAlign='center';ctx.textBaseline='middle';
+   ctx.font='bold '+Math.max(10,Math.min(39,Math.round(153/depth)))+'px system-ui';
+   ctx.fillText(text,px,py,Math.min(350,1170/depth));
+  }
+
+ }
+ return {canvas,software:draw};
+}
+
+function paint(){
+ if(!renderer||session)return;
+ const {gl,canvas,draw,software}=renderer,[x,,z]=points[atStop(current())];
+ if(software){software(x,state.height==='seated'?1.26:1.65,z,viewYaw+.13);return}
+ gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);
+ gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);draw(mul(perspective(canvas.width/canvas.height),camera(x,state.height==='seated'?1.26:1.65,z,viewYaw+.13)));
+}
+function attachPreview(){
+ let canvas=document.querySelector('#scene');if(!canvas)return;
+ try{renderer=init(canvas)}catch{renderer=null;const replacement=canvas.cloneNode();canvas.replaceWith(replacement);canvas=replacement}
+ if(!renderer)renderer=softwarePreview(canvas);
+ if(!renderer){const f=document.createElement('div');f.className='fallback';f.textContent='3D preview is unavailable. Continue using the route and text controls.';canvas.replaceWith(f);return}
+ let drag=null;
+ canvas.addEventListener('pointerdown',e=>{drag=e.clientX;canvas.setPointerCapture(e.pointerId)});
+ canvas.addEventListener('pointermove',e=>{if(drag===null)return;viewYaw-=(e.clientX-drag)*.006;drag=e.clientX;paint()});
+ for(const event of ['pointerup','pointercancel'])canvas.addEventListener(event,()=>{drag=null});
+ canvas.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();viewYaw+=e.key==='ArrowLeft'?.22:-.22;paint()}});
+ bind('left',()=>{viewYaw+=.24;paint()});bind('right',()=>{viewYaw-=.24;paint()});bind('center',()=>{viewYaw=0;paint()});
+ paint();
+}
+async function beginVR(){
+ const f=document.querySelector('#feedback');if(!renderer?.gl){f.textContent='A WebGL renderer is required for immersive VR.';return}
+ const active=renderer;
+ try{
+  const xrSession=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']});
+  session=xrSession;
+  xrSession.addEventListener('end',()=>{session=null;render();document.querySelector('#feedback').textContent='Immersive session ended. Route progress is retained.'},{once:true});
+  const {gl,draw}=active;
+  await gl.makeXRCompatible();
+  const baseLayer=new XRWebGLLayer(xrSession,gl);
+  xrSession.updateRenderState({baseLayer,depthFar:100});
+  let ref,isFloor=true;
+  try{ref=await xrSession.requestReferenceSpace('local-floor')}catch{ref=await xrSession.requestReferenceSpace('local');isFloor=false}
+  xrSession.addEventListener('select',()=>{state.route=(state.route+1)%locations.length;store()});
+  function frame(_time,xrFrame){
+   if(session!==xrSession)return;
+   xrSession.requestAnimationFrame(frame);
+   const pose=xrFrame.getViewerPose(ref);
+   gl.bindFramebuffer(gl.FRAMEBUFFER,baseLayer.framebuffer);
+   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+   if(!pose)return;
+   const [x,,z]=points[state.route];
+   for(const view of pose.views){
+    const port=baseLayer.getViewport(view);gl.viewport(port.x,port.y,port.width,port.height);
+    draw(mul(view.projectionMatrix,mul(view.transform.inverse.matrix,shift(-x,isFloor?0:-1.55,-z))));
+   }
+  }
+  xrSession.requestAnimationFrame(frame);
+ } catch {
+  if(session)try{await session.end()}catch{} session=null;
+  const feedback=document.querySelector('#feedback');if(feedback)feedback.textContent='Immersive VR could not start. You can continue in the desktop preview.';
+ }
+}
+const renderers={home,setup,route,landmark,desk,debrief};
+function render(focus=false){
+ if(session){session.end().catch(()=>{});return}
+ if(renderer?.gl){const {gl,buffer,program}=renderer;gl.deleteBuffer(buffer);gl.deleteProgram(program)}
+ renderer=null;
+ viewYaw=0;
+ renderers[current()]();
+ attachPreview();
+ if(focus)content.focus({preventScroll:true});
+}
+window.addEventListener('hashchange',()=>{if(location.hash!=='#content')render(true)});
+render();
+(async()=>{try{headset=Boolean(navigator.xr&&await navigator.xr.isSessionSupported('immersive-vr'))}catch{headset=false}if(['setup','route'].includes(current()))render()})();
+</script>
+</body>
+</html>
